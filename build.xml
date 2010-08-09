@@ -1,0 +1,190 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+  Copyright © 2010 Sattvik Software & Technology Services, Ltd. Co.
+  All rights reserved.
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the “Software”), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+ -->
+
+<project name='vimclojure' basedir='.' default='all'
+    xmlns:presets='http://sattvik.com/ant/presets'>
+  <description>
+    A Vim filetype plugin for Clojure.
+  </description>
+
+  <!-- load all properties from environment and files -->
+  <property environment='env'/>
+  <property file='build.properties'/>
+  <property name='root.dir' location='${basedir}'/>
+  <property file='default.properties'/>
+
+  <!-- load presets -->
+  <import file='${presets.file}'/>
+
+  <!-- sub-project directories -->
+  <filelist id='sub-projects'>
+    <file name='server'/>
+    <file name='client'/>
+    <file name='vim'/>
+  </filelist>
+
+
+  <!-- build classpaths -->
+  <path id='clojure.classpath'>
+    <pathelement location='${clojure.jar}'/>
+  </path>
+
+  <path id='nailgun.classpath'>
+    <pathelement location='${nailgun.jar}'/>
+  </path>
+
+
+  <!-- main targets -->
+  <target name='all' depends='dist'
+      description='Default target, calls dist'/>
+
+  <target name='server' depends='init'
+      description='Builds VimClojure server.'>
+    <ant dir='server' inheritAll='false'>
+      <propertyset>
+	<propertyref prefix='time'/>
+      </propertyset>
+    </ant>
+  </target>
+
+  <target name='dist' depends='init'
+      description='Creates distributable files'>
+    <antcall target='delegate'>
+      <param name='target' value='dist'/>
+    </antcall>
+  </target>
+
+  <target name='clean'
+      description='Cleans temporary generated files.'>
+    <antcall target='delegate'>
+      <param name='target' value='clean'/>
+    </antcall>
+  </target>
+
+  <target name='distclean' depends='clean'
+      description='Cleans all generated files.'/>
+
+  <!-- delegation target -->
+  <target name='delegate'>
+    <fail unless='target'>No target to delegate</fail>
+    <subant target='${target}' verbose='true'>
+      <filelist refid='sub-projects'/>
+      <propertyset>
+	<propertyref prefix='time'/>
+      </propertyset>
+    </subant>
+  </target>
+
+
+  <!-- helper targets -->
+  <target name='init' depends='init.tstamp'/>
+
+  <target name='init.tstamp'>
+    <presets:tstamp/>
+  </target>
+
+
+<!--  <path id='build.java.classpath'>
+    <path refid='clojure.classpath'/>
+    <path refid='nailgun.classpath'/>
+  </path>-->
+
+<!--  |+ filesets +|
+  <fileset id='src.clojure.fileset' dir='${src.clojure.dir}'>
+    <include name='**/*.clj'/>
+  </fileset>
+
+  <fileset id='jar.fileset' dir='${build.classes.dir}'>
+    <include name='**/*.class'/>
+  </fileset>
+
+  <fileset id='checksum.fileset' dir='${dist.dir}'>
+    <include name='*.jar'/>
+  </fileset>
+
+  |+ Main targets +|
+  <target name='all' depends='dist'
+      description='Default target—an alias for dist'/>
+
+  <target name='dist' depends='jar,checksum'
+      description='Creates distribution files.'/>
+
+  <target name='clean'
+      description='Clean generated files.'>
+    <delete dir='${build.dir}'/>
+  </target>
+
+  <target name='distclean' depends='clean'
+      description='Cleans all generated files including distribution files.'>
+    <delete dir='${dist.dir}'/>
+  </target>
+
+
+  |+ helper targets +|
+  <target name='init'>
+    <tstamp/>
+  </target>
+
+  <target name='compile' depends='compile.java'/>
+  
+  <target name='compile.java' depends='compile.init'>
+    <javac
+	destdir='${build.classes.dir}'
+	classpathref='build.java.classpath'
+	debug='${build.debug}'
+	debuglevel='lines,var,source'>
+      <src path='${src.java.dir}'/>
+    </javac>
+  </target>
+  
+  <target name='compile.init' depends='init'>
+    <mkdir dir='${build.classes.dir}'/>
+  </target>
+
+  <target name='jar' depends='compile,dist.init'>
+    <jar
+	destfile='${target.jar}'
+	strict='fail'>
+      <fileset refid='jar.fileset'/>
+      <fileset refid='src.clojure.fileset'/>
+      <manifest>
+	<attribute name='Implementation-Vendor' value='${project.org}'/>
+	<attribute name='Implementation-Title' value='${project.name}'/>
+	<attribute name='Implementation-Version' value='${project.version}'/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name='dist.init'>
+    <mkdir dir='${dist.dir}'/>
+  </target>
+
+  <target name='checksum' depends='jar'>
+    <checksum todir='${dist.dir}'
+	algorithm='SHA-256'
+	fileext='.sha256' format='MD5SUM'>
+      <fileset refid='checksum.fileset'/>
+    </checksum>
+  </target>-->
+</project>

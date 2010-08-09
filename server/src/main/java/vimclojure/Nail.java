@@ -27,7 +27,7 @@ import clojure.lang.RT;
 import clojure.lang.Symbol;
 import clojure.lang.Var;
 
-import vimclojure.nailgun.NGContext;
+import com.martiansoftware.nailgun.NGContext;
 
 public class Nail {
     /* Load up vimclojure */

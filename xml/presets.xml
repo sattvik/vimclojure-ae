@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+  Copyright © 2010 Sattvik Software & Technology Resources, Ltd. Co.
+  All rights reserved.
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the “Software”), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+ -->
+
+<project name='presets' default='all'>
+  <description>
+    A set of Ant presets to centralise and simplify build settings.
+  </description>
+
+  <!-- clojure-copy
+
+    Copies Clojure sources from the source directory to the classes
+    directory.
+  -->
+  <presetdef name='clojure-copy' uri='http://sattvik.com/ant/presets'>
+    <copy todir='${build.classes.dir}'
+	verbose='${build.verbose}'>
+      <fileset dir='${src.clojure.dir}'>
+	<include name='**/*.clj'/>
+      </fileset>
+    </copy>
+  </presetdef>
+
+  <!-- javac
+
+    Creates a new set of basic settings for the javac task.  Relies on
+    the following variables:
+
+      build.classes.dir: Destination directory for compiled classes
+      build.debug: Whether or not to create a debug build
+      build.verbose: Whether or not build verbosely
+      src.java.dir: Directory of Java sources
+
+    This task also depends on the ‘build.java.classpath’ reference to
+    be set appropriately.
+  -->
+  <presetdef name='javac' uri='http://sattvik.com/ant/presets'>
+    <javac fork='true'
+	srcdir='${src.java.dir}'
+	destdir='${build.classes.dir}'
+	classpathref='build.java.classpath'
+	debug='${build.debug}'
+	debuglevel='lines,vars,source'
+	verbose='${build.verbose}'
+	includeAntRuntime='no'
+	failonerror='true'
+	source='1.5'/>
+  </presetdef>
+
+  <presetdef name='jar' uri='http://sattvik.com/ant/presets'>
+    <jar destfile='${dist.jar}'
+	whenmanifestonly='fail'
+	level='9'
+	duplicate='fail'
+	strict='fail'>
+      <manifest>
+	<attribute name='Built-On' value='${time.iso}'/>
+	<attribute name='Implementation-Vendor' value='${project.org}'/>
+	<attribute name='Implementation-Title' value='${project.title}'/>
+	<attribute name='Implementation-Version' value='${project.version}'/>
+      </manifest>
+      <fileset dir='${build.classes.dir}'/>
+      <fileset dir='${root.dir}' includes='${dist.license.includes}'/>
+    </jar>
+  </presetdef>
+
+  <!-- tstamp
+    Overrides the basic tstamp task settings as follows:
+
+    * All variables are prefixed with ‘time.’
+    * The variable ‘time.iso’ is filled with an ISO 8601 timestamp of
+      the form ‘YYYY-MM-DDTHH:MM:ssZ’
+  -->
+  <presetdef name='tstamp' uri='http://sattvik.com/ant/presets'>
+    <tstamp prefix='time'>
+      <format property='iso'
+	  pattern="yyyy-MM-dd'T'HH:mm:ss'Z'"
+	  timezone='UTC'/>
+    </tstamp>
+  </presetdef>
+</project>

@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+  Copyright © 2010 Sattvik Software & Technology Resources, Ltd. Co.
+  All rights reserved.
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the “Software”), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+ -->
+
+<project name='base' default='all'
+    xmlns:presets='http://sattvik.com/ant/presets'
+    xmlns:ivy='antlib:org.apache.ivy.ant'>
+  <description>
+    Template build.xml for subprojects.
+  </description>
+
+  <!-- Load properties -->
+  <property environment='env'/>
+  <property file='build.properties'/>
+  <property name='root.dir' location='..'/>
+  <property name='default.settings.file' location='${root.dir}/default.properties'/>
+  <property name='local.settings.file' location='${root.dir}/build.properties'/>
+  <property file='${local.settings.file}'/>
+  <property file='${default.settings.file}'/>
+
+
+  <!-- load presets -->
+  <import file='${presets.file}'/>
+
+
+  <!-- primary targets -->
+  <target name='all' depends='dist'
+      description='Default target; calls dist'/>
+
+  <target name='compile' depends='compile.java, compile.clojure'
+      description='Compiles all source files.'/>
+
+  <target name='dist' depends='dist.jar'
+      description='Builds all distributable files.'/>
+
+  <target name='clean' depends='clean.builddir'
+      description='Cleans temporary generated files.'/>
+
+  <target name='distclean' depends='clean'
+      description='Deletes all generated files.'/>
+
+
+  <!-- milestone targets -->
+  <target name='init' depends='init.tstamp,init.ivy'/>
+
+
+  <!-- helper targets -->
+  <target name='init.tstamp' unless='time.iso'>
+    <presets:tstamp/>
+  </target>
+
+  <target name='init.ivy'>
+    <ivy:settings/>
+  </target>
+
+  <target name='compile.init' depends='init,compile.deps'>
+    <mkdir dir='${build.dir}'/>
+    <mkdir dir='${build.classes.dir}'/>
+  </target>
+
+  <target name='compile.deps' unless='${nodeps}'>
+    <ivy:resolve/>
+    <ivy:retrieve pattern='${lib.dir}/[artifact].[ext]'/>
+  </target>
+
+  <target name='compile.java' depends='compile.init'>
+    <presets:javac/>
+  </target>
+
+  <target name='compile.clojure' depends='compile.clojure.copy'/>
+  
+  <target name='compile.clojure.copy' depends='compile.init'>
+    <presets:clojure-copy/>
+  </target>
+
+  <target name='dist.jar' depends='compile'>
+    <presets:jar/>
+  </target>
+
+  <target name='clean.builddir'>
+    <delete dir='${build.dir}'
+	verbose='${build.verbose}'
+	failonerror='false'/>
+  </target>
+</project>
