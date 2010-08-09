@@ -40,7 +40,6 @@
   <!-- sub-project directories -->
   <filelist id='sub-projects'>
     <file name='server'/>
-    <file name='client'/>
     <file name='vim'/>
   </filelist>
 
